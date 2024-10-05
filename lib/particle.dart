@@ -1,15 +1,13 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class Particle {
   Offset position;
   Color color;
+  Offset origin;
 
-  //Defining the velocity
   double speed;
   double theta;
-
   double radius;
 
   Particle({
@@ -18,5 +16,6 @@ class Particle {
     this.speed = 0.0,
     this.theta = 0.0,
     this.radius = 0.0,
+    this.origin = const Offset(0, 0),
   });
 }
