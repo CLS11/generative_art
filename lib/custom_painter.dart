@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:generative_art/particle.dart';
+import 'particle.dart';
 
 Offset polarToCartesian(double speed, double theta) {
   return Offset(speed * cos(theta), speed * sin(theta));
@@ -10,10 +10,12 @@ class Painter extends CustomPainter {
   Painter(this.particles);
   final List<Particle> particles;
   final Random rgn = Random();
-  
+
   @override
   void paint(Canvas canvas, Size size) {
-    // Update the particles
+    // Clear the canvas
+    canvas.clearRect(Rect.fromLTRB(0, 0, size.width, size.height), Colors.white);
+    
     for (var p in particles) {
       var velocity = polarToCartesian(p.speed, p.theta);
       p.position += velocity;
@@ -31,7 +33,6 @@ class Painter extends CustomPainter {
       canvas.drawCircle(p.position, p.radius, paint);
     }
 
-    
     var center = Offset(size.width / 2, size.height / 2);
     var centerRadius = 100.0;
     var centerPaint = Paint()..color = Colors.blueGrey;
