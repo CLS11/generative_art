@@ -11,10 +11,10 @@ class HomePage extends StatefulWidget {
 }
 
 Color getRandomColor(Random rgn) {
-  var a = rgn.nextInt(256);
-  var r = rgn.nextInt(256);
-  var g = rgn.nextInt(256);
-  var b = rgn.nextInt(256);
+  final a = rgn.nextInt(256);
+  final r = rgn.nextInt(256);
+  final g = rgn.nextInt(256);
+  final b = rgn.nextInt(256);
   return Color.fromARGB(a, r, g, b);
 }
 
@@ -22,7 +22,8 @@ const double maxRadius = 6;
 const double maxSpeed = 0.2;
 const double maxTheta = 2.0 * pi;
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late List<Particle> particles;
   late Animation<double> animation;
   late AnimationController controller;
@@ -49,9 +50,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     animation = Tween<double>(begin: 0, end: 2 * pi).animate(controller)
       ..addListener(() {
-        setState(() {
-          updateBlobField();
-        });
+        setState(updateBlobField);
       });
 
     controller.repeat();
@@ -66,16 +65,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Generative Art'),
-      ),
-      body: CustomPaint(
-        painter: Painter(particles),
-        child: Container(
-          color: Colors.white,
+        /*body: CustomPaint(
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            Slider(
+              value: radiusFactor,
+              min: 1.0,
+              max: 10.0,
+              onChanged: (v) {
+                setState(() {
+                  radiusFactor = v;
+                });
+              },
+            ),
+          ],
         ),
-      ),
-    );
+        painter: Painter(particles),
+      ),*/
+        );
   }
 
   void createBlobField() {
@@ -84,11 +92,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Center of the screen
     final o = Offset(size.width / 2, size.height / 2);
     // Number of blobs
-    final n = 5;
+    const n = 5;
     // Radius of the blob
     final r = size.width / n;
     // Alpha blending value
-    final a = 0.2;
+    const a = 0.2;
     blobField(r, n, a, o);
   }
 
@@ -102,21 +110,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ..color = Colors.black);
     // Add orbital blobs
     var theta = 0.0; // Angle of the arc
-    var dTheta = 2 * pi / n; // Angle between child blobs
+    final dTheta = 2 * pi / n; // Angle between child blobs
     for (var i = 0; i < n; i++) {
       // Get position of the child blob
-      var pos = polarToCartesian(r, theta) + o;
-      particles.add(Particle()
-        ..theta = theta
-        ..radius = r / 3 // 1/3rd of the orbit radius
-        ..position = pos
-        ..origin = o
-        ..color = getColor(i.toDouble() / n, a));
+      final pos = polarToCartesian(r, theta) + o;
+      particles.add(
+        Particle()
+          ..theta = theta
+          ..radius = r / 3 // 1/3rd of the orbit radius
+          ..position = pos
+          ..origin = o
+          ..color = getColor(i.toDouble() / n, a),
+      );
 
       // Increase the angle
       theta += dTheta;
-
-      blobField(r * 0.5, n, a * 1.5, pos);
+      const f = 0.5;
+      blobField(r * f, n, a * 1.5, pos);
     }
   }
 
@@ -130,13 +140,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       p.position =
           polarToCartesian(p.radius * radiusFactor, p.theta + t) + p.origin;
     }
-    t += dt; // Increment time
+    t += dt;
+    radiusFactor = mapRange(sin(t), -1, 1, 2, -10); // Increment time
+  }
+
+  double mapRange(
+      double value, double min1, double max1, double min2, double max2) {
+    double range1 = min1 - max1;
+    double range2 = min2 - max2;
+    return min2 + range2 * value / range1;
   }
 
   Color getColor(double d, double a) {
-    final int r = ((sin(d * 2 * pi) * 127.0 + 127.0)).toInt();
-    final int g = ((cos(d * 2 * pi) * 127.0 + 127.0)).toInt();
-    final int b = rgn.nextInt(256);
-    return Color.fromARGB(255, r, g, b); 
+    final r = (sin(d * 2 * pi) * 127.0 + 127.0).toInt();
+    final g = (cos(d * 2 * pi) * 127.0 + 127.0).toInt();
+    final b = rgn.nextInt(256);
+    return Color.fromARGB(255, r, g, b);
   }
 }
